@@ -1,0 +1,18 @@
+{
+    "name": "nrc/radius-client",
+    "description": "Radius Client",
+    "version": "0.1.0",
+    "license": "MIT",
+    "config": {
+        "bin-dir": "bin/",
+        "vendor-dir": "libraries"
+    },
+    "require": {
+        "php": ">=5.3.6"
+    },
+    "autoload": {
+        "psr-0": {
+            "NRC": "src"
+        }
+    }
+}
