@@ -17,25 +17,12 @@ class Client
      */
     protected $radius = null;
 
-    public $host = null;
-
-    public $port = null;
-
-    public $secret = null;
-
-    public $nasHost = null;
-
     public $timeout = 5;
 
     public $retries = 1;
 
-    public function __construct($host, $port, $secret, $nasHost = null)
+    public function __construct()
     {
-        $this->host = $host;
-        $this->port = $port;
-        $this->secret = $secret;
-        $this->nasHost = $nasHost;
-
         if (!extension_loaded('radius')) {
             throw new RadiusException('Radius module not installed.');
         }
@@ -44,9 +31,6 @@ class Client
             $msg = radius_strerror($this->radius);
             throw new RadiusException('Failed to open radius handle: ' . $msg);
         }
-
-        $this->addServer($host, $port, $secret);
-
     }
 
     public function __destruct()
@@ -64,11 +48,11 @@ class Client
         }
     }
 
-    public function authenticate($username, $password, $nasHost = null)
+    public function authenticate($username, $password, $nasHost)
     {
 
         $ipAttrs = array(
-            RADIUS_NAS_IP_ADDRESS => $nasHost ?: $this->nasHost,
+            RADIUS_NAS_IP_ADDRESS => $nasHost,
         );
 
         $binaryAttrs = array(
