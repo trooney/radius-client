@@ -28,8 +28,7 @@ class Client
         }
 
         if (!$this->radius = radius_auth_open()) {
-            $msg = radius_strerror($this->radius);
-            throw new RadiusException('Failed to open radius handle: ' . $msg);
+            throw new RadiusException('Failed to open radius handle: ' . $this->lastError());
         }
     }
 
@@ -40,11 +39,15 @@ class Client
         }
     }
 
+    public function lastError()
+    {
+        return radius_strerror($this->radius);
+    }
+
     public function addServer($host, $port = 1813, $secret = null)
     {
         if (!radius_add_server($this->radius, $host, $port, $secret, $this->timeout, $this->retries)) {
-            $msg = radius_strerror($this->radius);
-            throw new RadiusException('Failed to add radius server: ' . $msg);
+            throw new RadiusException('Failed to add radius server: ' . $this->lastError());
         }
     }
 
@@ -65,24 +68,16 @@ class Client
 
         $response = $this->_request(RADIUS_ACCESS_REQUEST, $ipAttrs, $binaryAttrs);
 
-        switch ($response) {
-            case RADIUS_ACCESS_ACCEPT:
-                return true;
-                break;
-            case RADIUS_ACCESS_REJECT:
-            case RADIUS_ACCESS_CHALLENGE:
-                return false;
-                break;
-            default:
-                $msg = radius_strerror($this->radius);
-                throw new RadiusException('Radius returned an error: ' . $msg);
+        if (false === $response) {
+            throw new RadiusException('Radius request returned an invalid response: ' . $this->lastError());
         }
 
+        return RADIUS_ACCESS_ACCEPT === $response;
     }
 
     public function _request($type, array $ipAttributes = array(), array $binaryAttributes = array())
     {
-        if (!radius_create_request($this->radius, RADIUS_ACCESS_REQUEST)) {
+        if (!radius_create_request($this->radius, $type)) {
             throw new RadiusException(radius_strerror($this->radius));
         }
 
