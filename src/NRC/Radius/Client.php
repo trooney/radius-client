@@ -69,7 +69,7 @@ class Client
         $response = $this->_request(RADIUS_ACCESS_REQUEST, $ipAttrs, $binaryAttrs);
 
         if (false === $response) {
-            throw new RadiusException('Radius request returned an invalid response: ' . $this->lastError());
+            throw new RadiusException('Either cannot connect to Radius service, or the service returned an invalid response: ' . $this->lastError());
         }
 
         return RADIUS_ACCESS_ACCEPT === $response;
